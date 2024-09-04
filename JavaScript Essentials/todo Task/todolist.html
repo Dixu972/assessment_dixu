@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="todo-container">
+        <input type="text" id="todo-input" placeholder="add new">
+        <button id="add-button">Add</button>
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script>
+        // Get elements from the DOM
+        const input = document.getElementById('todo-input');
+        const addButton = document.getElementById('add-button');
+        const todoList = document.getElementById('todo-list');
+
+        // Load existing todos from cookies
+        window.onload = function () {
+            let savedTodos = getCookie('todos');
+            if (savedTodos) {
+                let todos = JSON.parse(savedTodos);
+                todos.forEach(todo => {
+                    addTodoToList(todo);
+                });
+            }
+        }
+
+        // Event listener for the "Add" button
+        addButton.addEventListener('click', function () {
+            const newTodo = input.value.trim();
+
+            if (newTodo) {
+                addTodoToList(newTodo);
+                saveTodoInCookies(newTodo);
+                input.value = ''; // Clear the input field
+            }
+        });
+
+        // Function to add a todo item to the list in the DOM
+        function addTodoToList(todo) {
+            const li = document.createElement('li');
+            li.textContent = todo;
+            todoList.appendChild(li);
+        }
+
+        // Function to save a new todo in cookies
+        function saveTodoInCookies(todo) {
+            let savedTodos = getCookie('todos');
+            let todos = savedTodos ? JSON.parse(savedTodos) : [];
+            todos.push(todo);
+            setCookie('todos', JSON.stringify(todos), 365); // Save for 1 year
+        }
+
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            let date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        // Function to get a cookie
+        function getCookie(name) {
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let cookies = decodedCookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.indexOf(name + "=") == 0) {
+                    return cookie.substring(name.length + 1, cookie.length);
+                }
+            }
+            return "";
+        }
+    </script>
+</body>
+
+</html>
